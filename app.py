@@ -3,6 +3,7 @@ from flask import Flask
 from flask_migrate import Migrate
 from flask_restful import Api
 from flask_cors import CORS
+from flask.cli import with_appcontext
 from models import db
 from resources.product import ProductListResource,ProductResource
 from dotenv import load_dotenv
@@ -16,6 +17,13 @@ CORS(app)
 db.init_app(app)
 migrate = Migrate(app,db)
 api = Api(app)
+# Run migrations automatically when app starts
+@app.cli.command("db-upgrade")
+@with_appcontext
+def db_upgrade():
+    """Run database migrations"""
+    from flask_migrate import upgrade
+    upgrade()
 
 api.add_resource(ProductListResource,'/products')
 api.add_resource(ProductResource,'/products/<int:id>')
